@@ -31,13 +31,35 @@ struct unitoutput<lmt::lmtdim::Length, std::ratio<254,10000>::type> {
     }
 };
 
+namespace {
+using ft_ratio = std::ratio<3048,10000>::type;
+}
+
 template<>
-struct unitoutput<lmt::lmtdim::Length, std::ratio<3048,10000>::type> {
+struct unitoutput<lmt::lmtdim::Length, ft_ratio> {
     friend std::ostream &operator<<(std::ostream & os, const unitoutput &) {
         os << " ft";
         return os;
     }
 };
+
+template<>
+struct unitoutput<lmt::lmtdim::Area, std::ratio<1>> {
+    friend std::ostream &operator<<(std::ostream & os, const unitoutput &) {
+        os << " m²";
+        return os;
+    }
+};
+
+template<>
+struct unitoutput<lmt::lmtdim::Area, std::ratio_multiply<ft_ratio, ft_ratio>> {
+    friend std::ostream &operator<<(std::ostream & os, const unitoutput &) {
+        os << " ft²";
+        return os;
+    }
+};
+
+
 
 }
 
@@ -122,7 +144,6 @@ int main() {
         static_assert(1_m == 100_cm);
         static_assert((5_in + 8_cm) == 207_mm);
     }
-    using namespace units;
 
 
     {
@@ -147,5 +168,13 @@ int main() {
         static_assert(std::is_same<list<svt_tag,1,0,0>, add_t<list<svt_tag,-1,2,1>,list<svt_tag,2,-2,-1>>>::value, "");
         static_assert(std::is_same<list<svt_tag,1,0,-1>, Velocity>::value, "");
     }
+
+    std::cout << (Meter<int>(2) + Foot<int>(3)) << std::endl;
+    std::cout << Foot<int>(3) << std::endl;
+
+
+    auto area = Foot<int>(3) * Foot<int>(4);
+    std::cout << area << std::endl;
+    std::cout << SquareMeter<double>(area) << std::endl;
 
 }
